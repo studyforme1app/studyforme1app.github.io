@@ -87,5 +87,5 @@ export function renderRecommendations(wrap, sections, grade) {
 
 /* 진단에 필요한 빈 결과 메시지 빌더 */
 export function emptyMsg(label, grade, selfLv) {
-  return `${label} · ${gradeLabel(grade)}·${SELF[selfLv].name} 수준에 맞는 데이터가 없어요. 업로드 데이터를 확인해주세요.`;
+  return `${label} · ${gradeLabel(grade)}·${SELF[selfLv].name} 수준에 딱 맞는 문제집이 아직 없어요. 학년이나 수준을 조금 바꿔보세요.`;
 }

@@ -1,7 +1,7 @@
 /* ---------- 진입점: 상태 관리 + 이벤트 바인딩 ---------- */
 
 import { gradeLabel } from "./constants.js";
-import { SAMPLE, validateData, autoLoad, parseFile } from "./data.js";
+import { SAMPLE, validateData, autoLoad } from "./data.js";
 import {
   renderSubjectChips, renderSA, renderGoal, buildItems, buildAnalysis,
 } from "./diagnose.js";
@@ -24,7 +24,7 @@ let radarChart = null;
 const el = {};
 [
   "gradeSel", "subjectChips", "goalSeg", "saPanel", "saList", "detailToggle",
-  "runBtn", "dataStat", "fileInput", "emptyState", "report", "rGrade", "rDate",
+  "runBtn", "dataStat", "emptyState", "report", "rGrade", "rDate",
   "radar", "analysisList", "recoSections", "imgBtn", "pdfBtn", "stepper",
 ].forEach((id) => (el[id] = document.getElementById(id)));
 
@@ -39,10 +39,9 @@ for (let g = 1; g <= 12; g++) {
 
 function updateStepper(diagnosed) {
   const done = {
-    1: state.DATA.length > 0,
-    2: state.selectedSubjects.size > 0,
-    3: state.selectedSubjects.size > 0, // 수준은 기본값이 있어 과목 선택과 동일 시점
-    4: !!diagnosed,
+    1: state.selectedSubjects.size > 0,
+    2: state.selectedSubjects.size > 0, // 수준은 기본값이 있어 과목 선택과 동일 시점
+    3: !!diagnosed,
   };
   el.stepper.querySelectorAll(".st").forEach((st) => {
     const n = +st.dataset.step;
@@ -63,14 +62,13 @@ function refresh() {
   updateStepper(false);
 }
 
-function setData(mapped, label) {
+function setData(mapped) {
   state.DATA = mapped;
   state.selectedSubjects.clear();
   state.selfLevels = {};
   state.detailLevels = {};
   const v = validateData(mapped);
-  el.dataStat.textContent =
-    `${label} ${v.count}권 사용 중` + (v.warnings ? ` · 검토 필요 ${v.warnings}건` : "");
+  el.dataStat.textContent = `문제집 ${v.count.toLocaleString("ko-KR")}권 기반 추천`;
   if (v.warnings) {
     console.warn(
       `[StudyForMe] 데이터 검토 필요: 난이도 미해석 ${v.unresolved}건, 학년 역전 ${v.gradeIssues}건`
@@ -83,21 +81,6 @@ function setData(mapped, label) {
 el.detailToggle.addEventListener("change", (e) => {
   state.detailMode = e.target.checked;
   refresh();
-});
-
-el.fileInput.addEventListener("change", async (e) => {
-  const f = e.target.files[0];
-  if (!f) return;
-  try {
-    const mapped = await parseFile(f);
-    if (!mapped.length) {
-      alert("인식된 행이 없어요. 컬럼명을 확인해주세요.");
-      return;
-    }
-    setData(mapped, "업로드 데이터");
-  } catch (err) {
-    alert("파일을 읽지 못했어요: " + err.message);
-  }
 });
 
 /* ---------- 진단 실행 ---------- */
@@ -150,9 +133,9 @@ refresh();
 el.dataStat.textContent = "데이터 불러오는 중…";
 autoLoad()
   .then((res) => {
-    if (res) setData(res.mapped, res.label);
-    else el.dataStat.textContent = `샘플 데이터 ${state.DATA.length}권 사용 중`;
+    if (res) setData(res.mapped);
+    else el.dataStat.textContent = `샘플 데이터 ${state.DATA.length}권 기반 추천`;
   })
   .catch(() => {
-    el.dataStat.textContent = `샘플 데이터 ${state.DATA.length}권 사용 중`;
+    el.dataStat.textContent = `샘플 데이터 ${state.DATA.length}권 기반 추천`;
   });

@@ -23,27 +23,16 @@
   </header>
 
   <div class="stepper" id="stepper">
-    <div class="st" data-step="1"><span class="n">1</span>데이터</div>
-    <div class="st" data-step="2"><span class="n">2</span>과목</div>
-    <div class="st" data-step="3"><span class="n">3</span>수준</div>
-    <div class="st" data-step="4"><span class="n">✓</span>진단</div>
+    <div class="st" data-step="1"><span class="n">1</span>과목 선택</div>
+    <div class="st" data-step="2"><span class="n">2</span>현재 수준</div>
+    <div class="st" data-step="3"><span class="n">✓</span>진단</div>
   </div>
 
   <div class="grid">
     <!-- INPUT -->
     <div>
       <div class="panel">
-        <h2><span class="step">1</span>문제집 데이터</h2>
-        <div class="field">
-          <label class="lbl" for="fileInput">CSV · 엑셀 업로드 (선택)</label>
-          <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
-          <div class="dataStat" id="dataStat">샘플 데이터 사용 중</div>
-          <p class="hint">컬럼: title, series, publisher, subject, subject_detail, grade_min, grade_max, semester, level, price, image_url</p>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h2><span class="step">2</span>학생 정보</h2>
+        <h2><span class="step">1</span>학생 정보</h2>
         <div class="field">
           <label class="lbl" for="gradeSel">학년</label>
           <select id="gradeSel"></select>
@@ -59,7 +48,7 @@
       </div>
 
       <div class="panel" id="saPanel" style="display:none">
-        <h2><span class="step">3</span>자가진단 — 현재 수준</h2>
+        <h2><span class="step">2</span>자가진단 — 현재 수준</h2>
         <label class="detailToggle">
           <input type="checkbox" id="detailToggle"> 세부영역까지 자세히 진단
         </label>
@@ -109,7 +98,7 @@
     </div>
   </div>
 
-  <div class="foot">샘플 데이터는 화면에 보이는 일부이며, 실제 운영 시 전체 목록을 업로드해 사용하세요.</div>
+  <div class="foot"><span class="dataStat" id="dataStat">데이터 불러오는 중…</span></div>
 </div>
 
 <script type="module" src="js/main.js"></script>
