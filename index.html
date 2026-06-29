@@ -5,143 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>맞춤 문제집 진단 · StudyForMe</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="css/styles.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-  :root{
-    --primary:#652BDF;
-    --primary-dark:#4A1FB8;
-    --primary-soft:#EDE7FB;
-    --bg:#FAF8FF;
-    --card:#FFFFFF;
-    --ink:#211A33;
-    --muted:#8B86A0;
-    --line:#EAE6F2;
-    --accent:#FF9E2C;
-    --c-base:#16A34A;   /* 기초 */
-    --c-basic:#2563EB;  /* 기본 */
-    --c-mid:#F59E0B;    /* 중위 */
-    --c-high:#DC2626;   /* 상위 */
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:'Pretendard',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-    background:var(--bg);color:var(--ink);line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  .wrap{max-width:1140px;margin:0 auto;padding:28px 20px 80px}
-
-  /* Header */
-  header.top{display:flex;align-items:center;gap:12px;margin-bottom:26px}
-  .logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--primary),#9B6BFF);
-    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:20px;flex-shrink:0}
-  header.top h1{font-size:20px;font-weight:800;letter-spacing:-.02em}
-  header.top p{font-size:13px;color:var(--muted);margin-top:1px}
-
-  .grid{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start}
-  @media(max-width:880px){.grid{grid-template-columns:1fr}}
-
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
-  .panel + .panel{margin-top:18px}
-  .panel h2{font-size:14px;font-weight:800;letter-spacing:-.01em;margin-bottom:14px;display:flex;align-items:center;gap:7px}
-  .panel h2 .step{width:20px;height:20px;border-radius:6px;background:var(--primary-soft);color:var(--primary);
-    font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:800}
-
-  .field{margin-bottom:16px}
-  .field:last-child{margin-bottom:0}
-  label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:7px}
-  select,input[type=file]{width:100%;font-family:inherit;font-size:14px;color:var(--ink);
-    border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:#fff}
-  select:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:transparent}
-
-  /* subject chips */
-  .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{font-size:13px;font-weight:600;padding:8px 13px;border-radius:999px;border:1px solid var(--line);
-    background:#fff;cursor:pointer;user-select:none;transition:.12s;color:var(--ink)}
-  .chip:hover{border-color:var(--primary)}
-  .chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
-
-  /* self-assessment rows */
-  .saRow{border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:10px;background:#fff}
-  .saRow .sName{font-size:13.5px;font-weight:700;margin-bottom:9px}
-  .levels{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-  .lvBtn{font-size:11.5px;font-weight:700;text-align:center;padding:8px 4px;border-radius:9px;
-    border:1px solid var(--line);background:#fff;cursor:pointer;transition:.12s;line-height:1.25;color:var(--muted)}
-  .lvBtn small{display:block;font-size:9.5px;font-weight:600;opacity:.8;margin-top:2px}
-  .lvBtn.on{color:#fff}
-  .lvBtn.on[data-lv="0"]{background:var(--c-base);border-color:var(--c-base)}
-  .lvBtn.on[data-lv="1"]{background:var(--c-basic);border-color:var(--c-basic)}
-  .lvBtn.on[data-lv="2"]{background:var(--c-mid);border-color:var(--c-mid)}
-  .lvBtn.on[data-lv="3"]{background:var(--c-high);border-color:var(--c-high)}
-
-  .btn{width:100%;font-family:inherit;font-size:15px;font-weight:800;color:#fff;border:none;cursor:pointer;
-    background:var(--primary);border-radius:12px;padding:14px;transition:.15s;letter-spacing:-.01em}
-  .btn:hover{background:var(--primary-dark)}
-  .btn:disabled{background:#C9C3DA;cursor:not-allowed}
-  .btn.ghost{background:#fff;color:var(--primary);border:1px solid var(--line)}
-  .btn.ghost:hover{background:var(--primary-soft)}
-
-  .hint{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.45}
-  .dataStat{font-size:12px;color:var(--primary);font-weight:700;margin-top:8px}
-
-  /* result */
-  .empty{background:var(--card);border:1px dashed var(--line);border-radius:18px;padding:60px 24px;text-align:center}
-  .empty .ic{font-size:34px;margin-bottom:12px}
-  .empty p{color:var(--muted);font-size:14px}
-
-  #report{display:none}
-  .reportHead{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:18px;flex-wrap:wrap}
-  .reportHead .who{font-size:18px;font-weight:800;letter-spacing:-.02em}
-  .reportHead .who span{color:var(--primary)}
-  .reportHead .date{font-size:12px;color:var(--muted)}
-  .dlBtns{display:flex;gap:8px}
-  .dlBtns .btn{width:auto;padding:9px 14px;font-size:13px}
-
-  .summaryGrid{display:grid;grid-template-columns:300px 1fr;gap:18px;margin-bottom:8px}
-  @media(max-width:680px){.summaryGrid{grid-template-columns:1fr}}
-  .chartCard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center}
-  .chartCard h3{font-size:13px;font-weight:800;align-self:flex-start;margin-bottom:6px}
-  .chartCard .cwrap{width:100%;max-width:260px}
-  .analysis{background:var(--primary-soft);border-radius:16px;padding:18px 20px}
-  .analysis h3{font-size:13px;font-weight:800;margin-bottom:10px;color:var(--primary-dark)}
-  .analysis ul{list-style:none}
-  .analysis li{font-size:13.5px;line-height:1.7;padding-left:18px;position:relative;margin-bottom:4px}
-  .analysis li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--primary)}
-  .analysis li b{color:var(--primary-dark)}
-
-  .secTitle{font-size:15px;font-weight:800;margin:26px 0 12px;display:flex;align-items:center;gap:8px}
-  .secTitle .pill{font-size:11px;font-weight:700;color:#fff;background:var(--primary);border-radius:999px;padding:2px 9px}
-
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-  .bookCard{background:var(--card);border:1px solid var(--line);border-radius:15px;overflow:hidden;display:flex;flex-direction:column;transition:.15s}
-  .bookCard:hover{box-shadow:0 8px 24px rgba(101,43,223,.10);transform:translateY(-2px)}
-  .bookCard .cover{width:100%;aspect-ratio:3/4;background:#F1EEF9;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
-  .bookCard .cover img{width:100%;height:100%;object-fit:cover}
-  .bookCard .cover .ph{color:#C3BBDB;font-size:12px;font-weight:700;text-align:center;padding:10px}
-  .bookCard .body{padding:13px 13px 15px;display:flex;flex-direction:column;flex:1}
-  .bookCard .ser{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:3px}
-  .bookCard .ttl{font-size:13.5px;font-weight:700;line-height:1.35;margin-bottom:8px;letter-spacing:-.01em}
-  .badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
-  .badge{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px;background:#F1EEF9;color:var(--primary-dark)}
-  .badge.t0{background:#E7F6ED;color:var(--c-base)}
-  .badge.t1{background:#E6EEFD;color:var(--c-basic)}
-  .badge.t2{background:#FEF1DC;color:#B45309}
-  .badge.t3{background:#FCE7E7;color:var(--c-high)}
-  .why{font-size:11.5px;color:#6B6480;line-height:1.5;background:#FBFAFE;border-radius:8px;padding:8px 10px;margin-top:auto}
-  .why b{color:var(--primary-dark)}
-  .price{font-size:14px;font-weight:800;margin-top:9px}
-  .matchbar{height:5px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:9px}
-  .matchbar i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),#9B6BFF)}
-  .matchTxt{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:4px}
-
-  .noBook{font-size:13px;color:var(--muted);padding:14px;background:#fff;border:1px dashed var(--line);border-radius:12px}
-  .foot{margin-top:30px;text-align:center;font-size:11.5px;color:var(--muted)}
-  .repFoot{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-align:center}
-</style>
 </head>
 <body>
 <div class="wrap">
@@ -153,35 +22,49 @@
     </div>
   </header>
 
+  <div class="stepper" id="stepper">
+    <div class="st" data-step="1"><span class="n">1</span>데이터</div>
+    <div class="st" data-step="2"><span class="n">2</span>과목</div>
+    <div class="st" data-step="3"><span class="n">3</span>수준</div>
+    <div class="st" data-step="4"><span class="n">✓</span>진단</div>
+  </div>
+
   <div class="grid">
     <!-- INPUT -->
     <div>
       <div class="panel">
         <h2><span class="step">1</span>문제집 데이터</h2>
         <div class="field">
-          <label class="lbl">CSV · 엑셀 업로드 (선택)</label>
+          <label class="lbl" for="fileInput">CSV · 엑셀 업로드 (선택)</label>
           <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
-          <div class="dataStat" id="dataStat">샘플 데이터 27권 사용 중</div>
-          <p class="hint">컬럼: title, series, publisher, subject, subject_detail, grade_min, grade_max, level, price, image_url</p>
+          <div class="dataStat" id="dataStat">샘플 데이터 사용 중</div>
+          <p class="hint">컬럼: title, series, publisher, subject, subject_detail, grade_min, grade_max, semester, level, price, image_url</p>
         </div>
       </div>
 
       <div class="panel">
         <h2><span class="step">2</span>학생 정보</h2>
         <div class="field">
-          <label class="lbl">학년</label>
+          <label class="lbl" for="gradeSel">학년</label>
           <select id="gradeSel"></select>
         </div>
         <div class="field">
           <label class="lbl">진단할 과목 <span style="color:var(--muted);font-weight:500">(복수 선택)</span></label>
           <div class="chips" id="subjectChips"></div>
         </div>
+        <div class="field">
+          <label class="lbl">학습 목적</label>
+          <div class="seg" id="goalSeg"></div>
+        </div>
       </div>
 
       <div class="panel" id="saPanel" style="display:none">
         <h2><span class="step">3</span>자가진단 — 현재 수준</h2>
+        <label class="detailToggle">
+          <input type="checkbox" id="detailToggle"> 세부영역까지 자세히 진단
+        </label>
         <div id="saList"></div>
-        <p class="hint">과목별로 자녀의 현재 체감 수준을 골라주세요.</p>
+        <p class="hint">과목별로 자녀의 현재 체감 수준을 골라주세요. 세부영역을 켜면 영역별로 더 정밀하게 추천해요.</p>
       </div>
 
       <div style="margin-top:18px">
@@ -229,332 +112,6 @@
   <div class="foot">샘플 데이터는 화면에 보이는 일부이며, 실제 운영 시 전체 목록을 업로드해 사용하세요.</div>
 </div>
 
-<script>
-/* ---------- 샘플 데이터 (스크린샷 기반) ---------- */
-const SAMPLE = [
- ["용선생 15분 한국사 독해 1 (우리 역사의 시작~삼국 시대)","용선생 15분 독해","BRICKS 사회평론","국어","독해/문해력",3,6,"기본 5",11000,"9791162732779"],
- ["용선생 추론독해 초등 국어 1단계 (1, 2학년 권장)","용선생 추론독해","BRICKS 사회평론","국어","독해/문해력",1,2,"기본 5",11000,"9791197407000"],
- ["용선생 추론독해 초등 국어 2단계 (2, 3학년 권장)","용선생 추론독해","BRICKS 사회평론","국어","독해/문해력",2,3,"기본 5",11000,"9791197407017"],
- ["용선생 추론독해 초등 국어 3단계 (3, 4학년 권장)","용선생 추론독해","BRICKS 사회평론","국어","독해/문해력",3,4,"기본 5",12000,"9791197407024"],
- ["용선생 추론독해 초등 국어 4단계 (4, 5학년 권장)","용선생 추론독해","BRICKS 사회평론","국어","독해/문해력",4,5,"기본 5",12000,"9791197407031"],
- ["용선생 추론독해 초등 국어 5단계 (5, 6학년 권장)","용선생 추론독해","BRICKS 사회평론","국어","독해/문해력",5,6,"기본 5",12000,"9791197407048"],
- ["용선생 추론독해 초등 국어 6단계 (6학년, 예비 중등 권장)","용선생 추론독해","BRICKS 사회평론","국어","독해/문해력",6,6,"기본 5",12000,"9791197407055"],
- ["용선생 15분 한국사 독해 2 (남북국 시대~고려 시대)","용선생 15분 독해","BRICKS 사회평론","국어","독해/문해력",3,6,"기본 5",11000,"9791162732786"],
- ["용선생 15분 세계사 독해 1: 고대","용선생 15분 독해","BRICKS 사회평론","국어","독해/문해력",3,6,"기본 5",11000,"9791162732359"],
- ["용선생 15분 세계사 독해 2: 중세","용선생 15분 독해","BRICKS 사회평론","국어","독해/문해력",3,6,"기본 5",11000,"9791162732366"],
- ["용선생 15분 세계사 독해 3: 근대","용선생 15분 독해","BRICKS 사회평론","국어","독해/문해력",3,6,"기본 5",11000,"9791162732373"],
- ["용선생 15분 세계사 독해 4: 근현대","용선생 15분 독해","BRICKS 사회평론","국어","독해/문해력",3,6,"기본 5",11000,"9791162732380"],
- ["용선생 15분 한국사 독해 4 (개항기~현대)","용선생 15분 독해","BRICKS 사회평론","국어","독해/문해력",3,6,"기본 5",11000,"9791162732809"],
- ["용선생 15분 한국사 독해 3 (조선 시대)","용선생 15분 독해","BRICKS 사회평론","국어","독해/문해력",3,6,"기본 5",11000,"9791162732793"],
- ["ERI 독해가 문해력이다 3단계 기본 (초등 3~4학년 권장)","EBS 초등 ERI 독해가 문해력이다","EBS","국어","독해/문해력",3,4,"기본 4",12000,"9788954759687"],
- ["EBS랑 홈스쿨 초등 영어 초등 영독해 Level 1 (2025)","EBS랑 홈스쿨 초등 영어","EBS","영어","독해",3,3,"기본 2",7200,"9788954755863"],
- ["EBS랑 홈스쿨 초등 영어 초등 영독해 Level 2 (2025)","EBS랑 홈스쿨 초등 영어","EBS","영어","독해",4,4,"기본 2",7200,"9788954755870"],
- ["EBS랑 홈스쿨 초등 영어 초등 영독해 Level 3 (2025)","EBS랑 홈스쿨 초등 영어","EBS","영어","독해",5,5,"기본 2",7200,"9788954755887"],
- ["MY VOCA COACH 중학 입문 (2025)","MY VOCA COACH 중학","EBS","영어","어휘",7,7,"중위 3",11000,"9788954761598"],
- ["MY VOCA COACH 중학 기본 (2025)","MY VOCA COACH 중학","EBS","영어","어휘",8,8,"중위 2",11000,"9788954761604"],
- ["MY VOCA COACH 중학 실력 (2025)","MY VOCA COACH 중학","EBS","영어","어휘",9,9,"상위 2",11000,"9788954761611"],
- ["MY GRAMMAR COACH 기초편","MY GRAMMAR COACH","EBS","영어","문법",7,7,"중위 3",9000,"9788954761628"],
- ["MY GRAMMAR COACH 표준편","MY GRAMMAR COACH","EBS","영어","문법",8,8,"중위 4",13000,"9788954761635"],
- ["EBS 중학 영어듣기 능력평가 완벽대비 중1","EBS 중학 영어듣기 능력평가 완벽대비","EBS","영어","듣기",7,7,"중위 3",10500,"9788954770767"],
- ["EBS 중학 영어듣기 능력평가 완벽대비 중2","EBS 중학 영어듣기 능력평가 완벽대비","EBS","영어","듣기",8,8,"중위 3",10500,"9788954770750"],
- ["EBS 중학 영어듣기 능력평가 완벽대비 중3","EBS 중학 영어듣기 능력평가 완벽대비","EBS","영어","듣기",9,9,"중위 3",10500,"9788954770774"],
- ["EBS랑 홈스쿨 초등 필수 영단어 Level 2 (2022 개정)","EBS랑 홈스쿨 초등 영어","EBS","영어","어휘",5,5,"기본 2",13000,"9788954782210"],
-].map(r=>({
-  title:r[0],series:r[1],publisher:r[2],subject:r[3],subject_detail:r[4],
-  grade_min:r[5],grade_max:r[6],level:r[7],price:r[8],
-  image_url:"http://biblio.booxen.com/IMG_ISBN13/"+r[9]+"_L.jpg",isbn:r[9]
-}));
-
-/* ---------- 상수 / 헬퍼 ---------- */
-const TIERS=["기초","기본","중위","상위"]; // 0~3
-const SELF=[
-  {k:0,name:"기초",desc:"아직 어려워요"},
-  {k:1,name:"기본",desc:"기본은 알아요"},
-  {k:2,name:"표준",desc:"곧잘 해요"},
-  {k:3,name:"심화",desc:"잘해요"},
-];
-function gradeLabel(g){
-  if(g<=6) return "초등 "+g+"학년";
-  if(g<=9) return "중학 "+(g-6)+"학년";
-  return "고등 "+(g-9)+"학년";
-}
-function tierOf(level){
-  if(!level) return 1;
-  for(let i=0;i<TIERS.length;i++) if((""+level).includes(TIERS[i])) return i;
-  return 1;
-}
-const won=n=>(+n||0).toLocaleString("ko-KR")+"원";
-// http 표지를 https로 안전하게 불러오기 위한 이미지 프록시 (mixed-content/CORS 회피)
-function proxied(url){
-  if(!url) return "";
-  if(/^https:\/\//i.test(url)) return url;         // 이미 https면 그대로
-  const stripped=url.replace(/^https?:\/\//i,"");
-  return "https://images.weserv.nl/?url="+encodeURIComponent(stripped);
-}
-
-/* ---------- 상태 ---------- */
-let DATA=SAMPLE.slice();
-let selectedSubjects=new Set();
-let selfLevels={}; // subject -> 0..3
-
-/* ---------- 초기화 ---------- */
-const gradeSel=document.getElementById("gradeSel");
-for(let g=1;g<=12;g++){
-  const o=document.createElement("option");o.value=g;o.textContent=gradeLabel(g);
-  if(g===3)o.selected=true;gradeSel.appendChild(o);
-}
-function subjectsInData(){return [...new Set(DATA.map(b=>b.subject).filter(Boolean))];}
-
-function renderSubjectChips(){
-  const box=document.getElementById("subjectChips");box.innerHTML="";
-  subjectsInData().forEach(s=>{
-    const c=document.createElement("div");
-    c.className="chip"+(selectedSubjects.has(s)?" on":"");
-    c.textContent=s;
-    c.onclick=()=>{
-      if(selectedSubjects.has(s)){selectedSubjects.delete(s);delete selfLevels[s];}
-      else{selectedSubjects.add(s);selfLevels[s]=1;}
-      renderSubjectChips();renderSA();updateRunState();
-    };
-    box.appendChild(c);
-  });
-}
-function renderSA(){
-  const panel=document.getElementById("saPanel"),list=document.getElementById("saList");
-  if(selectedSubjects.size===0){panel.style.display="none";return;}
-  panel.style.display="block";list.innerHTML="";
-  [...selectedSubjects].forEach(s=>{
-    const row=document.createElement("div");row.className="saRow";
-    row.innerHTML=`<div class="sName">${s}</div>`;
-    const lv=document.createElement("div");lv.className="levels";
-    SELF.forEach(o=>{
-      const b=document.createElement("button");
-      b.className="lvBtn"+(selfLevels[s]===o.k?" on":"");
-      b.dataset.lv=o.k;
-      b.innerHTML=`${o.name}<small>${o.desc}</small>`;
-      b.onclick=()=>{selfLevels[s]=o.k;renderSA();};
-      lv.appendChild(b);
-    });
-    row.appendChild(lv);list.appendChild(row);
-  });
-}
-function updateRunState(){
-  document.getElementById("runBtn").disabled=selectedSubjects.size===0;
-}
-
-/* ---------- 데이터 매핑 (자동 로드·직접 업로드 공용) ---------- */
-function mapRows(rows){
-  return rows.map(r=>({
-    title:r.title||r.제목||"",
-    series:r.series||r.시리즈||"",
-    publisher:r.publisher||r.출판사||"",
-    subject:r.subject||r.과목||"",
-    subject_detail:r.subject_detail||r.세부과목||"",
-    grade_min:+(r.grade_min||r.grade||1),
-    grade_max:+(r.grade_max||r.grade||r.grade_min||12),
-    level:r.level||r.난이도||"기본",
-    price:+(""+(r.price||0)).replace(/[^0-9]/g,""),
-    image_url:r.image_url||r.이미지||"",
-    isbn:r.isbn||""
-  })).filter(b=>b.title&&b.subject);
-}
-function applyData(mapped,label){
-  DATA=mapped;
-  selectedSubjects.clear();selfLevels={};
-  document.getElementById("dataStat").textContent=label+" "+DATA.length+"권 사용 중";
-  renderSubjectChips();renderSA();updateRunState();
-}
-
-/* ---------- 레포에 올린 데이터 파일 자동 로드 ----------
-   index.html 과 같은 폴더에 아래 이름 중 하나로 올리면 자동 인식됩니다.
-   다른 이름을 쓰려면 DATA_FILES 목록만 바꾸세요. (csv·xlsx 모두 지원) */
-const DATA_FILES=["workbooks.csv","books.csv","data.csv","workbooks.xlsx","books.xlsx","data.xlsx"];
-async function autoLoad(){
-  for(const name of DATA_FILES){
-    try{
-      const res=await fetch(name+"?v="+Date.now()); // 캐시 우회
-      if(!res.ok) continue;
-      let rows=[];
-      if(name.toLowerCase().endsWith(".csv")){
-        rows=Papa.parse(await res.text(),{header:true,skipEmptyLines:true}).data;
-      }else{
-        const wb=XLSX.read(await res.arrayBuffer(),{type:"array"});
-        rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});
-      }
-      const mapped=mapRows(rows);
-      if(mapped.length){applyData(mapped,name);return;}
-    }catch(e){/* 없으면 다음 후보 시도 */}
-  }
-  // 아무 파일도 없으면 샘플 데이터 유지
-}
-
-/* ---------- 파일 직접 업로드(선택) ---------- */
-document.getElementById("fileInput").addEventListener("change",e=>{
-  const f=e.target.files[0];if(!f)return;
-  const ext=f.name.split(".").pop().toLowerCase();
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{
-      let rows=[];
-      if(ext==="csv"){
-        rows=Papa.parse(ev.target.result,{header:true,skipEmptyLines:true}).data;
-      }else{
-        const wb=XLSX.read(ev.target.result,{type:"binary"});
-        rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});
-      }
-      const mapped=mapRows(rows);
-      if(!mapped.length){alert("인식된 행이 없어요. 컬럼명을 확인해주세요.");return;}
-      applyData(mapped,"업로드 데이터");
-    }catch(err){alert("파일을 읽지 못했어요: "+err.message);}
-  };
-  if(ext==="csv")reader.readAsText(f,"UTF-8");else reader.readAsBinaryString(f);
-});
-
-/* ---------- 추천 로직 ---------- */
-function scoreBook(b,grade,selfLv){
-  // 학년 적합
-  let gradeScore;
-  if(grade>=b.grade_min&&grade<=b.grade_max) gradeScore=1;
-  else{
-    const d=Math.min(Math.abs(grade-b.grade_min),Math.abs(grade-b.grade_max));
-    if(d>=3) return null; // 너무 동떨어진 학년 제외
-    gradeScore=Math.max(0,1-d*0.35);
-  }
-  // 난이도 적합
-  const bt=tierOf(b.level);
-  const diff=Math.abs(bt-selfLv);
-  const lvScore=Math.max(0,1-diff*0.34);
-  const total=Math.round((gradeScore*0.55+lvScore*0.45)*100);
-  return {...b,_score:total,_diff:diff,_tier:bt};
-}
-function recommend(grade,subject,selfLv){
-  return DATA.filter(b=>b.subject===subject)
-    .map(b=>scoreBook(b,grade,selfLv))
-    .filter(Boolean)
-    .sort((a,b)=>b._score-a._score)
-    .slice(0,6);
-}
-function whyText(b,selfLv,grade){
-  const parts=[];
-  if(grade>=b.grade_min&&grade<=b.grade_max)parts.push("현재 학년에 딱 맞아요");
-  else parts.push("학년대가 비슷해요");
-  if(b._diff===0)parts.push(`<b>${SELF[selfLv].name}</b> 수준에 정확히 맞는 난이도`);
-  else if(b._tier>selfLv)parts.push("한 단계 도전용으로 적합");
-  else parts.push("기초를 다지기 좋은 난이도");
-  return parts.join(" · ");
-}
-
-/* ---------- 실행 ---------- */
-let radarChart=null;
-document.getElementById("runBtn").addEventListener("click",()=>{
-  const grade=+gradeSel.value;
-  const subs=[...selectedSubjects];
-  document.getElementById("emptyState").style.display="none";
-  document.getElementById("report").style.display="block";
-  document.getElementById("rGrade").textContent=gradeLabel(grade);
-  document.getElementById("rDate").textContent=new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric"})+" 기준";
-
-  // 레이더
-  const labels=subs, vals=subs.map(s=>selfLevels[s]+1); // 1~4
-  if(radarChart)radarChart.destroy();
-  radarChart=new Chart(document.getElementById("radar"),{
-    type:"radar",
-    data:{labels,datasets:[{data:vals,fill:true,
-      backgroundColor:"rgba(101,43,223,.15)",borderColor:"#652BDF",
-      pointBackgroundColor:"#652BDF",borderWidth:2,pointRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:true,
-      scales:{r:{min:0,max:4,ticks:{stepSize:1,display:false},
-        pointLabels:{font:{size:12,weight:"700",family:"Pretendard"},color:"#211A33"},
-        grid:{color:"#EAE6F2"},angleLines:{color:"#EAE6F2"}}},
-      plugins:{legend:{display:false}}}
-  });
-
-  // 분석
-  const al=document.getElementById("analysisList");al.innerHTML="";
-  const sorted=[...subs].sort((a,b)=>selfLevels[b]-selfLevels[a]);
-  const top=sorted[0],low=sorted[sorted.length-1];
-  const add=h=>{const li=document.createElement("li");li.innerHTML=h;al.appendChild(li);};
-  add(`현재 <b>${gradeLabel(grade)}</b> 기준으로 <b>${subs.length}개 과목</b>을 진단했어요.`);
-  if(subs.length>1&&selfLevels[top]!==selfLevels[low]){
-    add(`<b>${top}</b>은(는) 상대적으로 강점, <b>${low}</b>은(는) 보완이 필요해 보여요.`);
-  }
-  const needBase=subs.filter(s=>selfLevels[s]<=1);
-  if(needBase.length)add(`${needBase.map(s=>`<b>${s}</b>`).join(", ")}은(는) <b>기초·기본 난이도</b> 문제집부터 차근차근 권해요.`);
-  const adv=subs.filter(s=>selfLevels[s]>=3);
-  if(adv.length)add(`${adv.map(s=>`<b>${s}</b>`).join(", ")}은(는) <b>심화·상위 난이도</b>로 한 단계 도전해볼 만해요.`);
-
-  // 추천 섹션
-  const wrap=document.getElementById("recoSections");wrap.innerHTML="";
-  subs.forEach(s=>{
-    const recos=recommend(grade,s,selfLevels[s]);
-    const sec=document.createElement("div");
-    sec.innerHTML=`<div class="secTitle">${s} 추천 문제집 <span class="pill">${SELF[selfLevels[s]].name} 수준</span></div>`;
-    if(!recos.length){
-      sec.innerHTML+=`<div class="noBook">${s} 과목에서 ${gradeLabel(grade)}·${SELF[selfLevels[s]].name} 수준에 맞는 데이터가 없어요. 업로드 데이터를 확인해주세요.</div>`;
-      wrap.appendChild(sec);return;
-    }
-    const cards=document.createElement("div");cards.className="cards";
-    recos.forEach(b=>{
-      const card=document.createElement("div");card.className="bookCard";
-      const t=b._tier;
-      card.innerHTML=`
-        <div class="cover">
-          <img src="${proxied(b.image_url)}" alt="" crossorigin="anonymous"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="ph" style="display:none">${b.title}</div>
-        </div>
-        <div class="body">
-          <div class="ser">${b.series||b.publisher||""}</div>
-          <div class="ttl">${b.title}</div>
-          <div class="badges">
-            <span class="badge t${t}">${(b.level||"").trim()}</span>
-            <span class="badge">${b.subject_detail||b.subject}</span>
-          </div>
-          <div class="why">${whyText(b,selfLevels[s],grade)}</div>
-          <div class="price">${won(b.price)}</div>
-          <div class="matchbar"><i style="width:${b._score}%"></i></div>
-          <div class="matchTxt">적합도 ${b._score}%</div>
-        </div>`;
-      cards.appendChild(card);
-    });
-    sec.appendChild(cards);wrap.appendChild(sec);
-  });
-
-  document.getElementById("report").scrollIntoView({behavior:"smooth",block:"start"});
-});
-
-/* ---------- 다운로드 ---------- */
-async function snapshot(){
-  const el=document.getElementById("report");
-  return await html2canvas(el,{scale:2,backgroundColor:"#FAF8FF",useCORS:true,allowTaint:true});
-}
-document.getElementById("imgBtn").addEventListener("click",async function(){
-  const t=this.textContent;this.textContent="저장 중…";this.disabled=true;
-  try{
-    const c=await snapshot();
-    const a=document.createElement("a");
-    a.download="문제집진단리포트.png";a.href=c.toDataURL("image/png");a.click();
-  }catch(e){alert("이미지 저장 중 문제가 생겼어요. 표지 이미지가 외부 서버라 일부 환경에서 제한될 수 있어요.");}
-  this.textContent=t;this.disabled=false;
-});
-document.getElementById("pdfBtn").addEventListener("click",async function(){
-  const t=this.textContent;this.textContent="저장 중…";this.disabled=true;
-  try{
-    const c=await snapshot();
-    const {jsPDF}=window.jspdf;
-    const pdf=new jsPDF("p","mm","a4");
-    const pw=210,ph=297,iw=pw,ih=c.height*pw/c.width;
-    let left=ih,pos=0;
-    pdf.addImage(c,"PNG",0,0,iw,ih);left-=ph;
-    while(left>0){pos-=ph;pdf.addPage();pdf.addImage(c,"PNG",0,pos,iw,ih);left-=ph;}
-    pdf.save("문제집진단리포트.pdf");
-  }catch(e){alert("PDF 저장 중 문제가 생겼어요. 표지 이미지가 외부 서버라 일부 환경에서 제한될 수 있어요.");}
-  this.textContent=t;this.disabled=false;
-});
-
-/* ---------- 첫 렌더 ---------- */
-renderSubjectChips();renderSA();updateRunState();
-autoLoad(); // 레포에 데이터 파일이 있으면 샘플 대신 자동 사용
-</script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
